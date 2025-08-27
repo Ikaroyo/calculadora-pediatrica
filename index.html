@@ -113,8 +113,11 @@
 
         <!-- Área de Resultados -->
         <div id="result" class="mt-6 p-4 rounded-lg result-box">
-            <h2 class="font-semibold text-gray-800">Dosis recomendada:</h2>
-            <p id="resultText" class="text-3xl font-bold text-purple-700 mt-1"></p>
+            <h2 class="font-semibold text-gray-800 mb-2">Dosis recomendada:</h2>
+            <div class="flex items-center justify-between">
+                <p id="resultText" class="text-3xl font-bold text-purple-700"></p>
+                <canvas id="measuringCup" width="120" height="140"></canvas>
+            </div>
         </div>
         
         <!-- Mensaje de Error -->
@@ -199,6 +202,90 @@
         // Ocultar el resultado al inicio
         resultDiv.style.display = 'none';
 
+        // --- Lógica de la Tapita Medidora (Mejorada) ---
+        function drawMeasuringCup(dose) {
+            const canvas = document.getElementById('measuringCup');
+            if (!canvas.getContext) return;
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+
+            ctx.clearRect(0, 0, width, height);
+
+            // Parámetros de la tapita
+            const cupBottomWidth = 40;
+            const cupTopWidth = 70;
+            const cupHeight = 100;
+            const cupX = 35; // Posición X para dejar espacio a los números
+            const cupY = 20;
+            const maxMl = 15;
+            const pixelsPerMl = cupHeight / maxMl;
+
+            // --- Dibujar el líquido rosado ---
+            if (dose > 0) {
+                const doseHeight = Math.min(dose * pixelsPerMl, cupHeight);
+                const liquidBottomY = cupY + cupHeight;
+                const liquidTopY = liquidBottomY - doseHeight;
+                const liquidTopWidth = cupBottomWidth + (cupTopWidth - cupBottomWidth) * (doseHeight / cupHeight);
+                const liquidTopX = cupX + (cupTopWidth - liquidTopWidth) / 2;
+                
+                const gradient = ctx.createLinearGradient(0, liquidTopY, 0, liquidBottomY);
+                gradient.addColorStop(0, '#f9a8d4'); // Rosa claro
+                gradient.addColorStop(1, '#f472b6'); // Rosa más oscuro
+                ctx.fillStyle = gradient;
+
+                // Forma del líquido con fondo curvo
+                ctx.beginPath();
+                ctx.moveTo(liquidTopX, liquidTopY);
+                ctx.ellipse(liquidTopX + liquidTopWidth / 2, liquidTopY, liquidTopWidth / 2, 4, 0, Math.PI, 0, true); // Superficie
+                ctx.lineTo(cupX + (cupTopWidth + cupBottomWidth) / 2, liquidBottomY); // Lado derecho
+                ctx.quadraticCurveTo(cupX + cupTopWidth / 2, liquidBottomY + 5, cupX + (cupTopWidth - cupBottomWidth) / 2, liquidBottomY); // Fondo curvo
+                ctx.closePath(); // Cierra al lado izquierdo
+                ctx.fill();
+            }
+
+            // --- Dibujar las marcas de medición (primero para que queden detrás) ---
+            ctx.strokeStyle = 'rgba(156, 163, 175, 0.4)'; // Gris más sutil
+            ctx.lineWidth = 1;
+            for (let ml = 2.5; ml <= maxMl; ml += 2.5) {
+                const lineY = (cupY + cupHeight) - (ml * pixelsPerMl);
+                const progress = (lineY - cupY) / cupHeight;
+                const currentWidth = cupTopWidth - (cupTopWidth - cupBottomWidth) * progress;
+                const startX = cupX + (cupTopWidth - currentWidth) / 2;
+                
+                ctx.beginPath();
+                const ellipseYRadius = 2.5 + (progress * 1.5); // Curvatura aumenta hacia abajo
+                ctx.ellipse(startX + currentWidth / 2, lineY, currentWidth / 2, ellipseYRadius, 0, 0, Math.PI);
+                ctx.stroke();
+            }
+            
+            // --- Dibujar el contorno de la tapita (después de las líneas) ---
+            ctx.strokeStyle = '#9ca3af';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(cupX, cupY);
+            ctx.lineTo(cupX + (cupTopWidth - cupBottomWidth) / 2, cupY + cupHeight);
+            ctx.quadraticCurveTo(cupX + cupTopWidth / 2, cupY + cupHeight + 5, cupX + (cupTopWidth + cupBottomWidth) / 2, cupY + cupHeight);
+            ctx.lineTo(cupX + cupTopWidth, cupY);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.ellipse(cupX + cupTopWidth / 2, cupY, cupTopWidth / 2, 5, 0, 0, 2 * Math.PI);
+            ctx.stroke();
+
+            // --- Dibujar los números (al final para que queden encima de todo) ---
+            ctx.fillStyle = '#6b7280';
+            ctx.font = '11px Inter';
+            ctx.textAlign = 'right';
+            for (let ml = 2.5; ml <= maxMl; ml += 2.5) {
+                 const lineY = (cupY + cupHeight) - (ml * pixelsPerMl);
+                 const isMajorTick = ml % 5 === 0 || ml === 2.5;
+                 if (isMajorTick) {
+                     const numberX = cupX - 8;
+                     ctx.fillText(`${ml}`, numberX, lineY + 4);
+                 }
+            }
+        }
+
         // --- Lógica de Cálculo ---
         function calculateDose() {
             resultDiv.classList.remove('show');
@@ -215,23 +302,15 @@
             }
 
             let dose = 0;
-
             switch (medication) {
-                case 'ibu_4':
-                    dose = weight / 4;
-                    break;
-                case 'ibu_2':
-                    dose = weight / 2;
-                    break;
-                case 'para':
-                    dose = (weight * 15) / 100;
-                    break;
-                case 'dipi':
-                    dose = (weight * 15) / 50;
-                    break;
+                case 'ibu_4': dose = weight / 4; break;
+                case 'ibu_2': dose = weight / 2; break;
+                case 'para': dose = (weight * 15) / 100; break;
+                case 'dipi': dose = (weight * 15) / 50; break;
             }
 
             resultText.textContent = `${dose.toFixed(2)} ml`;
+            drawMeasuringCup(dose); // Dibujar la tapita
             resultDiv.style.display = 'block';
             setTimeout(() => {
                 resultDiv.classList.add('show');
@@ -263,22 +342,14 @@
 
         // --- Event Listeners ---
         calculateBtn.addEventListener('click', calculateDose);
-        weightInput.addEventListener('keypress', function(event) {
-            if (event.key === 'Enter') {
-                calculateDose();
-            }
+        weightInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') calculateDose();
         });
-
-        // Guardar la selección del medicamento al cambiar
         medicationSelect.addEventListener('change', saveLastSelection);
-
         openModalBtn.addEventListener('click', showModal);
         closeModalBtn.addEventListener('click', hideModal);
-        // Cerrar modal al hacer clic fuera del contenido
-        infoModal.addEventListener('click', function(event) {
-            if (event.target === infoModal) {
-                hideModal();
-            }
+        infoModal.addEventListener('click', (event) => {
+            if (event.target === infoModal) hideModal();
         });
 
         // Cargar la última selección al iniciar la página
