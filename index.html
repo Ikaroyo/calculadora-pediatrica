@@ -7,76 +7,132 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --bg-body: #f5f3ff;
+            --bg-dots: #ddd6fe;
+            --bg-card: #ffffff;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --border-color: #e5e7eb;
+            --shadow-color: rgba(109, 40, 217, 0.2);
+            --primary-color: #8b5cf6;
+            --primary-hover: #7c3aed;
+            --result-bg: #ede9fe;
+            --result-text: #5b21b6;
+            --disclaimer-bg: #fefce8;
+            --disclaimer-border: #facc15;
+            --disclaimer-text: #78350f;
+        }
+
+        .dark {
+            --bg-body: #18181b;
+            --bg-dots: #3f3f46;
+            --bg-card: #27272a;
+            --text-primary: #f4f4f5;
+            --text-secondary: #a1a1aa;
+            --border-color: #3f3f46;
+            --shadow-color: rgba(0, 0, 0, 0.2);
+            --primary-color: #a78bfa;
+            --primary-hover: #c4b5fd;
+            --result-bg: #5b21b6;
+            --result-text: #ddd6fe;
+            --disclaimer-bg: #134e4a;
+            --disclaimer-border: #14b8a6;
+            --disclaimer-text: #99f6e4;
+        }
+
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f5f3ff; /* Light Purple background */
+            background-color: var(--bg-body);
             background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ddd6fe' fill-opacity='0.6' fill-rule='evenodd'%3E%3Ccircle cx='3' cy='3' r='3'/%3E%3Ccircle cx='13' cy='13' r='3'/%3E%3C/g%3E%3C/svg%3E");
+            transition: background-color 0.3s ease;
+        }
+        .dark body {
+             background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%233f3f46' fill-opacity='0.6' fill-rule='evenodd'%3E%3Ccircle cx='3' cy='3' r='3'/%3E%3Ccircle cx='13' cy='13' r='3'/%3E%3C/g%3E%3C/svg%3E");
         }
         .calculator-card {
-            background: #ffffff;
-            box-shadow: 0 25px 50px -12px rgba(109, 40, 217, 0.2);
-            border: 1px solid #e5e7eb;
+            background: var(--bg-card);
+            box-shadow: 0 25px 50px -12px var(--shadow-color);
+            border: 1px solid var(--border-color);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+            position: relative;
         }
         .btn-primary {
-            background-color: #8b5cf6; /* Vibrant Purple */
+            background-color: var(--primary-color);
+            color: #ffffff;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px -5px rgba(139, 92, 246, 0.6);
+            box-shadow: 0 4px 15px -5px color-mix(in srgb, var(--primary-color) 40%, transparent);
+        }
+        .dark .btn-primary {
+            color: #18181b;
         }
         .btn-primary:hover {
-            background-color: #7c3aed;
+            background-color: var(--primary-hover);
             transform: translateY(-3px);
-            box-shadow: 0 6px 20px -5px rgba(139, 92, 246, 0.8);
         }
         .result-box {
-            background-color: #ede9fe; /* Light Purple */
-            border-left: 4px solid #8b5cf6;
+            background-color: var(--result-bg);
+            border-left: 4px solid var(--primary-color);
             opacity: 0;
             transform: translateY(10px) scale(0.98);
-            transition: opacity 0.4s ease, transform 0.4s ease;
+            transition: opacity 0.4s ease, transform 0.4s ease, background-color 0.3s ease;
         }
         .result-box.show {
             opacity: 1;
             transform: translateY(0) scale(1);
         }
+        .result-box h2 { color: var(--text-secondary); }
+        .result-box p { color: var(--result-text); }
         .disclaimer {
-            background-color: #fefce8; /* Light Yellow */
-            border-left: 4px solid #facc15;
+            background-color: var(--disclaimer-bg);
+            border-left: 4px solid var(--disclaimer-border);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
         }
+        .disclaimer p { color: var(--disclaimer-text); }
         .form-input {
             border-width: 2px;
-            border-color: #e5e7eb;
-            transition: border-color 0.3s ease;
+            border-color: var(--border-color);
+            background-color: var(--bg-card);
+            color: var(--text-primary);
+            transition: border-color 0.3s ease, background-color 0.3s ease;
         }
         .form-input:focus {
             outline: none;
-            border-color: #8b5cf6;
-            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 20%, transparent);
         }
-        /* Estilos para la ventana emergente (Modal) */
-        .modal-overlay {
-            transition: opacity 0.3s ease;
+        h1, label { color: var(--text-primary); }
+        .subtitle { color: var(--text-secondary); }
+        .modal-content { background-color: var(--bg-card); }
+
+        /* Theme Toggle Button */
+        #theme-toggle {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-secondary);
         }
-        .modal-content {
-            transition: transform 0.3s ease, opacity 0.3s ease;
-            transform: translateY(20px) scale(0.95);
-            opacity: 0;
-        }
-        .modal-overlay.flex {
-            opacity: 1;
-        }
-        .modal-overlay.flex .modal-content {
-            transform: translateY(0) scale(1);
-            opacity: 1;
-        }
+        #theme-toggle:hover { color: var(--primary-color); }
+        .sun-icon, .moon-icon { transition: transform 0.3s ease; }
+        .dark .sun-icon { transform: scale(0); }
+        .dark .moon-icon { transform: scale(1); }
+        .moon-icon { position: absolute; top:0; left:0; transform: scale(0); }
     </style>
 </head>
 <body class="flex flex-col items-center justify-center min-h-screen p-4">
     <div class="calculator-card w-full max-w-md mx-auto rounded-3xl p-6 md:p-8">
         
+        <button id="theme-toggle" title="Cambiar tema">
+            <svg class="sun-icon h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+            <svg class="moon-icon h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+        </button>
+
         <div class="text-center mb-8">
-            <!-- Icono Infantil Mejorado -->
-            <div class="mx-auto bg-purple-100 rounded-full h-20 w-20 flex items-center justify-center mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-purple-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <div class="mx-auto bg-purple-100 dark:bg-gray-700 rounded-full h-20 w-20 flex items-center justify-center mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-purple-500 dark:text-purple-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3" />
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 2v2" />
@@ -85,20 +141,18 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M22 12h-2" />
                 </svg>
             </div>
-            <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Calculadora Pediátrica</h1>
-            <p class="text-gray-500 mt-1">Dosis por Kilo</p>
+            <h1 class="text-2xl md:text-3xl font-bold">Calculadora Pediátrica</h1>
+            <p class="subtitle mt-1">Dosis por Kilo</p>
         </div>
 
-        <!-- Input de Peso -->
         <div class="mb-4">
-            <label for="weight" class="block text-sm font-medium text-gray-700 mb-2">Peso del niño (en kg)</label>
-            <input type="number" id="weight" placeholder="Ej: 15" class="w-full px-4 py-3 text-gray-700 bg-white rounded-lg form-input">
+            <label for="weight" class="block text-sm font-medium mb-2">Peso del niño (en kg)</label>
+            <input type="number" id="weight" placeholder="Ej: 15" class="w-full px-4 py-3 rounded-lg form-input">
         </div>
 
-        <!-- Selección de Medicamento -->
         <div class="mb-6">
-            <label for="medication" class="block text-sm font-medium text-gray-700 mb-2">Medicamento</label>
-            <select id="medication" class="w-full px-4 py-3 text-gray-700 bg-white rounded-lg form-input">
+            <label for="medication" class="block text-sm font-medium mb-2">Medicamento</label>
+            <select id="medication" class="w-full px-4 py-3 rounded-lg form-input">
                 <option value="ibu_4">Ibuprofeno 4% (ej. Ibupirac, Actron)</option>
                 <option value="ibu_2">Ibuprofeno 2% (ej. Ibupirac, Actron)</option>
                 <option value="para">Paracetamol 100mg/ml (ej. Termofren, Tafirol)</option>
@@ -106,79 +160,72 @@
             </select>
         </div>
 
-        <!-- Botón de Calcular -->
-        <button id="calculateBtn" class="w-full btn-primary text-white font-bold py-3 px-4 rounded-lg">
+        <button id="calculateBtn" class="w-full btn-primary font-bold py-3 px-4 rounded-lg">
             Calcular Dosis
         </button>
 
-        <!-- Área de Resultados -->
         <div id="result" class="mt-6 p-4 rounded-lg result-box">
-            <h2 class="font-semibold text-gray-800 mb-2">Dosis recomendada:</h2>
+            <h2 class="font-semibold mb-2">Dosis recomendada:</h2>
             <div class="flex items-center justify-between">
-                <p id="resultText" class="text-3xl font-bold text-purple-700"></p>
+                <p id="resultText" class="text-3xl font-bold"></p>
                 <canvas id="measuringCup" width="120" height="140"></canvas>
             </div>
         </div>
         
-        <!-- Mensaje de Error -->
         <div id="error" class="mt-4 text-red-600 text-sm hidden"></div>
 
-        <!-- Disclaimer -->
         <div class="mt-8 p-3 rounded-lg disclaimer">
-            <p class="text-xs text-yellow-800">
+            <p class="text-xs">
                 <strong class="font-bold">Importante:</strong> Esta calculadora es una guía. Consulte siempre a un médico o farmacéutico.
             </p>
         </div>
     </div>
 
-    <!-- Botón para abrir la ventana emergente -->
-    <button id="openModalBtn" class="mt-6 flex items-center text-sm text-purple-600 hover:text-purple-800 font-semibold transition">
+    <button id="openModalBtn" class="mt-6 flex items-center text-sm text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 font-semibold transition">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
             <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
         </svg>
         Información útil sobre medicamentos
     </button>
 
-    <!-- Ventana Emergente (Modal) -->
     <div id="infoModal" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4">
-        <div class="modal-content bg-white rounded-2xl shadow-xl p-6 md:p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto relative">
+        <div class="modal-content rounded-2xl shadow-xl p-6 md:p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto relative">
             <button id="closeModalBtn" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
             </button>
-            <h2 class="text-2xl font-bold text-gray-800 mb-4">Información sobre Medicamentos</h2>
-            <div class="text-gray-600 space-y-4">
+            <h2 class="text-2xl font-bold text-primary mb-4">Información sobre Medicamentos</h2>
+            <div class="text-secondary space-y-4">
                 <p>Estos medicamentos son seguros a dosis recomendadas, pero tienen diferencias clave que nos ayudan a decidir cuál usar.</p>
                 
                 <div>
-                    <h3 class="font-semibold text-lg text-purple-700">Ibuprofeno</h3>
-                    <p>Es un antiinflamatorio no esteroideo (AINE). Su principal ventaja es que <strong class="font-semibold">reduce la inflamación</strong>. Es ideal para:</p>
+                    <h3 class="font-semibold text-lg text-purple-700 dark:text-purple-400">Ibuprofeno</h3>
+                    <p>Es un antiinflamatorio (AINE). Su principal ventaja es que <strong class="font-semibold text-primary">reduce la inflamación</strong>. Es ideal para:</p>
                     <ul class="list-disc list-inside mt-2 space-y-1 pl-2">
-                        <li>Dolor leve o moderado con inflamación (golpes, esguinces).</li>
+                        <li>Dolor con inflamación (golpes, esguinces).</li>
                         <li>Dolores musculares o de articulaciones.</li>
-                        <li>Dolor menstrual.</li>
                         <li>Fiebre alta que no cede fácilmente.</li>
                     </ul>
                 </div>
 
                 <div>
-                    <h3 class="font-semibold text-lg text-teal-700">Paracetamol (Acetaminofeno)</h3>
-                    <p>Es analgésico y antipirético, pero <strong class="font-semibold">no tiene un efecto antiinflamatorio</strong> significativo. Es la opción preferida para:</p>
+                    <h3 class="font-semibold text-lg text-teal-700 dark:text-teal-400">Paracetamol (Acetaminofeno)</h3>
+                    <p>Es analgésico y antipirético, pero <strong class="font-semibold text-primary">no tiene un efecto antiinflamatorio</strong> significativo. Es la opción preferida para:</p>
                     <ul class="list-disc list-inside mt-2 space-y-1 pl-2">
-                        <li>Fiebre con malestar general (como en la gripe).</li>
-                        <li>Dolor leve o moderado sin inflamación (dolor de cabeza, muelas, espalda).</li>
-                        <li>Cuando se busca bajar la fiebre como primer síntoma.</li>
+                        <li>Fiebre con malestar general (gripe).</li>
+                        <li>Dolor sin inflamación (cabeza, muelas).</li>
+                        <li>Bajar la fiebre como primer síntoma.</li>
                     </ul>
                 </div>
 
                 <div>
-                    <h3 class="font-semibold text-lg text-red-700">Dipirona (Novalgina)</h3>
-                    <p>Es un analgésico y antipirético <strong class="font-semibold">muy potente</strong>. Generalmente se reserva para:</p>
+                    <h3 class="font-semibold text-lg text-red-700 dark:text-red-400">Dipirona (Novalgina)</h3>
+                    <p>Es un analgésico y antipirético <strong class="font-semibold text-primary">muy potente</strong>. Generalmente se reserva para:</p>
                     <ul class="list-disc list-inside mt-2 space-y-1 pl-2">
-                        <li>Fiebre muy alta que no responde a ibuprofeno o paracetamol.</li>
+                        <li>Fiebre muy alta que no responde a otros medicamentos.</li>
                         <li>Dolor intenso postoperatorio o de otro tipo.</li>
-                        <li>Su uso debe ser siempre bajo supervisión médica debido a posibles efectos adversos.</li>
+                        <li>Su uso debe ser siempre bajo supervisión médica.</li>
                     </ul>
                 </div>
             </div>
@@ -194,34 +241,28 @@
         const resultText = document.getElementById('resultText');
         const errorDiv = document.getElementById('error');
 
-        // --- Elementos de la Ventana Emergente (Modal) ---
+        // --- Elementos del Modal ---
         const openModalBtn = document.getElementById('openModalBtn');
         const closeModalBtn = document.getElementById('closeModalBtn');
         const infoModal = document.getElementById('infoModal');
 
-        // Ocultar el resultado al inicio
+        // --- Elementos del Tema ---
+        const themeToggle = document.getElementById('theme-toggle');
+        const docElement = document.documentElement;
+
         resultDiv.style.display = 'none';
 
-        // --- Lógica de la Tapita Medidora (Mejorada) ---
         function drawMeasuringCup(dose) {
             const canvas = document.getElementById('measuringCup');
             if (!canvas.getContext) return;
             const ctx = canvas.getContext('2d');
             const width = canvas.width;
             const height = canvas.height;
-
             ctx.clearRect(0, 0, width, height);
 
-            // Parámetros de la tapita
-            const cupBottomWidth = 40;
-            const cupTopWidth = 70;
-            const cupHeight = 100;
-            const cupX = 35; // Posición X para dejar espacio a los números
-            const cupY = 20;
-            const maxMl = 15;
-            const pixelsPerMl = cupHeight / maxMl;
+            const cupBottomWidth = 40, cupTopWidth = 70, cupHeight = 100, cupX = 35, cupY = 20;
+            const maxMl = 15, pixelsPerMl = cupHeight / maxMl;
 
-            // --- Dibujar el líquido rosado ---
             if (dose > 0) {
                 const doseHeight = Math.min(dose * pixelsPerMl, cupHeight);
                 const liquidBottomY = cupY + cupHeight;
@@ -230,36 +271,32 @@
                 const liquidTopX = cupX + (cupTopWidth - liquidTopWidth) / 2;
                 
                 const gradient = ctx.createLinearGradient(0, liquidTopY, 0, liquidBottomY);
-                gradient.addColorStop(0, '#f9a8d4'); // Rosa claro
-                gradient.addColorStop(1, '#f472b6'); // Rosa más oscuro
+                gradient.addColorStop(0, '#f9a8d4');
+                gradient.addColorStop(1, '#f472b6');
                 ctx.fillStyle = gradient;
 
-                // Forma del líquido con fondo curvo
                 ctx.beginPath();
                 ctx.moveTo(liquidTopX, liquidTopY);
-                ctx.ellipse(liquidTopX + liquidTopWidth / 2, liquidTopY, liquidTopWidth / 2, 4, 0, Math.PI, 0, true); // Superficie
-                ctx.lineTo(cupX + (cupTopWidth + cupBottomWidth) / 2, liquidBottomY); // Lado derecho
-                ctx.quadraticCurveTo(cupX + cupTopWidth / 2, liquidBottomY + 5, cupX + (cupTopWidth - cupBottomWidth) / 2, liquidBottomY); // Fondo curvo
-                ctx.closePath(); // Cierra al lado izquierdo
+                ctx.ellipse(liquidTopX + liquidTopWidth / 2, liquidTopY, liquidTopWidth / 2, 4, 0, Math.PI, 0, true);
+                ctx.lineTo(cupX + (cupTopWidth + cupBottomWidth) / 2, liquidBottomY);
+                ctx.quadraticCurveTo(cupX + cupTopWidth / 2, liquidBottomY + 5, cupX + (cupTopWidth - cupBottomWidth) / 2, liquidBottomY);
+                ctx.closePath();
                 ctx.fill();
             }
 
-            // --- Dibujar las marcas de medición (primero para que queden detrás) ---
-            ctx.strokeStyle = 'rgba(156, 163, 175, 0.4)'; // Gris más sutil
+            ctx.strokeStyle = 'rgba(156, 163, 175, 0.4)';
             ctx.lineWidth = 1;
             for (let ml = 2.5; ml <= maxMl; ml += 2.5) {
                 const lineY = (cupY + cupHeight) - (ml * pixelsPerMl);
                 const progress = (lineY - cupY) / cupHeight;
                 const currentWidth = cupTopWidth - (cupTopWidth - cupBottomWidth) * progress;
                 const startX = cupX + (cupTopWidth - currentWidth) / 2;
-                
                 ctx.beginPath();
-                const ellipseYRadius = 2.5 + (progress * 1.5); // Curvatura aumenta hacia abajo
+                const ellipseYRadius = 2.5 + (progress * 1.5);
                 ctx.ellipse(startX + currentWidth / 2, lineY, currentWidth / 2, ellipseYRadius, 0, 0, Math.PI);
                 ctx.stroke();
             }
             
-            // --- Dibujar el contorno de la tapita (después de las líneas) ---
             ctx.strokeStyle = '#9ca3af';
             ctx.lineWidth = 2;
             ctx.beginPath();
@@ -272,26 +309,21 @@
             ctx.ellipse(cupX + cupTopWidth / 2, cupY, cupTopWidth / 2, 5, 0, 0, 2 * Math.PI);
             ctx.stroke();
 
-            // --- Dibujar los números (al final para que queden encima de todo) ---
-            ctx.fillStyle = '#6b7280';
+            ctx.fillStyle = docElement.classList.contains('dark') ? '#9ca3af' : '#6b7280';
             ctx.font = '11px Inter';
             ctx.textAlign = 'right';
             for (let ml = 2.5; ml <= maxMl; ml += 2.5) {
                  const lineY = (cupY + cupHeight) - (ml * pixelsPerMl);
-                 const isMajorTick = ml % 5 === 0 || ml === 2.5;
-                 if (isMajorTick) {
-                     const numberX = cupX - 8;
-                     ctx.fillText(`${ml}`, numberX, lineY + 4);
+                 if (ml % 5 === 0 || ml === 2.5) {
+                     ctx.fillText(`${ml}`, cupX - 8, lineY + 4);
                  }
             }
         }
 
-        // --- Lógica de Cálculo ---
         function calculateDose() {
             resultDiv.classList.remove('show');
             resultDiv.style.display = 'none';
             errorDiv.classList.add('hidden');
-
             const weight = parseFloat(weightInput.value);
             const medication = medicationSelect.value;
             
@@ -310,49 +342,52 @@
             }
 
             resultText.textContent = `${dose.toFixed(2)} ml`;
-            drawMeasuringCup(dose); // Dibujar la tapita
+            drawMeasuringCup(dose);
             resultDiv.style.display = 'block';
-            setTimeout(() => {
-                resultDiv.classList.add('show');
-            }, 10);
+            setTimeout(() => { resultDiv.classList.add('show'); }, 10);
         }
         
-        // --- Lógica de la Ventana Emergente ---
-        function showModal() {
-            infoModal.classList.remove('hidden');
-            infoModal.classList.add('flex');
-        }
-
-        function hideModal() {
-            infoModal.classList.add('hidden');
-            infoModal.classList.remove('flex');
-        }
-
-        // --- Lógica para recordar la última selección ---
-        function loadLastSelection() {
-            const savedMedication = localStorage.getItem('lastMedication');
-            if (savedMedication) {
-                medicationSelect.value = savedMedication;
+        // --- Lógica del Tema ---
+        const applyTheme = (theme) => {
+            if (theme === 'dark') {
+                docElement.classList.add('dark');
+            } else {
+                docElement.classList.remove('dark');
             }
-        }
+            // Redibujar la tapita con el color de texto correcto
+            if (resultDiv.style.display !== 'none') {
+                 const dose = parseFloat(resultText.textContent) || 0;
+                 drawMeasuringCup(dose);
+            }
+        };
+        const toggleTheme = () => {
+            const currentTheme = localStorage.getItem('theme') || 'light';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            localStorage.setItem('theme', newTheme);
+            applyTheme(newTheme);
+        };
+        
+        // Cargar tema al inicio
+        const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        applyTheme(savedTheme);
 
-        function saveLastSelection() {
-            localStorage.setItem('lastMedication', medicationSelect.value);
-        }
+
+        // --- Lógica General ---
+        const loadLastSelection = () => {
+            const savedMedication = localStorage.getItem('lastMedication');
+            if (savedMedication) medicationSelect.value = savedMedication;
+        };
+        const saveLastSelection = () => localStorage.setItem('lastMedication', medicationSelect.value);
 
         // --- Event Listeners ---
         calculateBtn.addEventListener('click', calculateDose);
-        weightInput.addEventListener('keypress', (event) => {
-            if (event.key === 'Enter') calculateDose();
-        });
+        weightInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') calculateDose(); });
         medicationSelect.addEventListener('change', saveLastSelection);
-        openModalBtn.addEventListener('click', showModal);
-        closeModalBtn.addEventListener('click', hideModal);
-        infoModal.addEventListener('click', (event) => {
-            if (event.target === infoModal) hideModal();
-        });
+        openModalBtn.addEventListener('click', () => infoModal.classList.remove('hidden', 'flex'));
+        closeModalBtn.addEventListener('click', () => infoModal.classList.add('hidden'));
+        infoModal.addEventListener('click', (e) => { if (e.target === infoModal) infoModal.classList.add('hidden'); });
+        themeToggle.addEventListener('click', toggleTheme);
 
-        // Cargar la última selección al iniciar la página
         loadLastSelection();
     </script>
 </body>
